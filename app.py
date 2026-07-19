@@ -19,6 +19,9 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap');
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     .stApp { background-color: #10233A; }
+    section[data-testid="stSidebar"] { background-color: #0C1B2E; }
+    section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] h3 { color: #F4EFE6 !important; }
     h1, h2, h3 { font-family: 'Poppins', sans-serif; color: #F4EFE6 !important; }
     p, span, label, li, .stMarkdown, div[data-testid="stMarkdownContainer"] p { color: #C7D0DC !important; }
     hr { border-color: #26405F !important; }
@@ -100,6 +103,17 @@ def price_policy(sum_assured, term_years, current_duration=0):
     surrender_value = max(reserve * 0.90, 0)  # 10% surrender charge
     return premium, reserve, surrender_value, S
 
+
+# =========================================================
+# SIDEBAR — Try It Yourself inputs
+# =========================================================
+with st.sidebar:
+    st.markdown("### Try It Yourself")
+    st.markdown("Price a policy using the fitted Gompertz model.")
+    sum_assured_in = st.number_input("Sum assured (KES)", 50000, 2000000, 300000, step=25000)
+    term_in = st.slider("Policy term (years)", 5, 30, 20)
+    duration_in = st.slider("Years already married", 0, 29, 3)
+    run = st.button("Calculate premium & reserve")
 
 # =========================================================
 # HERO
@@ -184,10 +198,14 @@ fig.add_trace(go.Scatter(x=years_plot, y=S_plot, name="Marriage survival probabi
 fig.add_trace(go.Scatter(x=years_plot, y=1 - S_plot, name="Cumulative divorce probability",
                           line=dict(color="#b3541e", width=3)))
 fig.update_layout(
-    plot_bgcolor="#F4EFE6", paper_bgcolor="#F4EFE6", font_color="#10233A",
+    plot_bgcolor="#F4EFE6", paper_bgcolor="#F4EFE6",
     height=380, margin=dict(l=10, r=10, t=30, b=10),
-    xaxis_title="Years of marriage", yaxis_title="Probability",
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0)
+    xaxis=dict(title="Years of marriage", gridcolor="#D8CFC0", zerolinecolor="#D8CFC0",
+               tickfont=dict(color="#10233A"), title_font=dict(color="#10233A")),
+    yaxis=dict(title="Probability", gridcolor="#D8CFC0", zerolinecolor="#D8CFC0",
+               tickfont=dict(color="#10233A"), title_font=dict(color="#10233A")),
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                font=dict(color="#10233A"), bgcolor="rgba(0,0,0,0)")
 )
 st.markdown('<div class="sa-plot-card">', unsafe_allow_html=True)
 st.plotly_chart(fig, use_container_width=True)
@@ -240,18 +258,10 @@ sa_section_end()
 # =========================================================
 sa_section_start("Interactive demo", "Try It Yourself")
 st.markdown(
-    "Adjust the inputs below to price a policy using the fitted Gompertz model. Parameters here "
-    "are illustrative, calibrated to reflect the same relationships as the original study."
+    "Adjust the parameters in the sidebar to price a policy using the fitted Gompertz model. "
+    "Parameters here are illustrative, calibrated to reflect the same relationships as the "
+    "original study."
 )
-
-ic1, ic2, ic3 = st.columns(3)
-with ic1:
-    sum_assured_in = st.number_input("Sum assured (KES)", 50000, 2000000, 300000, step=25000)
-with ic2:
-    term_in = st.slider("Policy term (years)", 5, 30, 20)
-with ic3:
-    duration_in = st.slider("Years already married", 0, 29, 3)
-    run = st.button("Calculate premium & reserve")
 
 if run:
     duration_in = min(duration_in, term_in - 1)
@@ -260,6 +270,8 @@ if run:
     r1.markdown(f'<div class="sa-card"><h4>Annual premium</h4><div class="big">KES {premium:,.0f}</div></div>', unsafe_allow_html=True)
     r2.markdown(f'<div class="sa-card"><h4>Reserve at duration {duration_in}</h4><div class="big">KES {reserve:,.0f}</div></div>', unsafe_allow_html=True)
     r3.markdown(f'<div class="sa-card"><h4>Surrender value</h4><div class="big">KES {surrender:,.0f}</div></div>', unsafe_allow_html=True)
+else:
+    st.markdown("*Set your parameters in the sidebar, then click **Calculate premium & reserve**.*")
 sa_section_end()
 
 # =========================================================
